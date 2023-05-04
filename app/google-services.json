@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "772403352468",
+    "project_id": "onlinechat-af80e",
+    "storage_bucket": "onlinechat-af80e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:772403352468:android:daccae2fc139e3fab03581",
+        "android_client_info": {
+          "package_name": "com.example.onlinechat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "772403352468-ruif90bgfme4n7ocf9b25ta1k2na64ta.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDTXPF33sICUBMhTq84e3qTaByX3UaxfV8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "772403352468-ruif90bgfme4n7ocf9b25ta1k2na64ta.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
