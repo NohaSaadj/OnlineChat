@@ -217,13 +217,12 @@
                     android:textColor="@color/colorSecondaryText"
                     android:textSize="16sp"/>
 
-                <Button
+                <TextView
                     android:id="@+id/tv_login"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="5dp"
                     android:text="login"
-                    android:backgroundTint="@color/white"
                     android:textColor="@color/colorSecondaryText"
                     android:textStyle="bold"
                     android:textSize="18sp"/>

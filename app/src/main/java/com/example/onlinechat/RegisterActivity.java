@@ -18,6 +18,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -27,7 +28,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     EditText et_email,et_password,et_name,et_cpassword;
     Button signup;
-    Button login;
+    TextView login;
     ProgressBar progressBar;
     FirebaseAuth mAuth;
     FirebaseFirestore db;
@@ -94,6 +95,23 @@ public class RegisterActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(task.isSuccessful()){
+                            FirebaseUser firebaseUser = mAuth.getCurrentUser();
+                            String userID = firebaseUser.getUid();
+
+                            Map<String, Object> user = new HashMap<>();
+                            user.put("id", userID);
+                            user.put("name",name);
+                            user.put("email",email);
+                            user.put("password",password);
+                            user.put("cPassword",cPassword);
+
+                            db.collection("users").document(userID)
+                                    .set(user)
+                                    .addOnSuccessListener(documentReference -> {
+                                        Log.e("n", "Data added successfully to database: ");
+                                    })
+                                    .addOnFailureListener(e -> Log.e("n", "Failed to add database", e));
+
                             Toast.makeText(RegisterActivity.this,"Welcome",Toast.LENGTH_SHORT).show();
                             progressBar.setVisibility(View.GONE);
                             Intent intent=new Intent(RegisterActivity.this, LoginActivity.class);
@@ -105,19 +123,7 @@ public class RegisterActivity extends AppCompatActivity {
                         }
                     }
                 });
-       // String userId = mAuth.getCurrentUser().getUid();
-        Map<String, Object> user = new HashMap<>();
-        user.put("name",name);
-        user.put("email",email);
-        user.put("password",password);
-        user.put("cPassword",cPassword);
 
-        db.collection("users")
-                .add(user)
-                .addOnSuccessListener(documentReference -> {
-                Log.e("n", "Data added successfully to database: ");
-                })
-                .addOnFailureListener(e -> Log.e("n", "Failed to add database", e));
     }
 
 }

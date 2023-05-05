@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.onlinechat.R;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -27,21 +28,21 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ProfileActivity extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
+    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+
+    FirebaseStorage Storage = FirebaseStorage.getInstance();
+    String userID = mAuth.getCurrentUser().getUid();
     TextView Name,Email,Password;
-    EditText updateEmail;
-    EditText updatePassword;
+    ImageButton ChooseImg;
     ImageButton Edit;
-
     ImageView add;
-
-    User user;
-
 
 
     @Override
@@ -53,6 +54,7 @@ public class ProfileActivity extends AppCompatActivity {
         Email=findViewById(R.id.email_text);
         Password=findViewById(R.id.password_text);
         Edit=findViewById(R.id.profileEditBtn);
+        ChooseImg=findViewById(R.id.btnChooseImage);
 
         FirebaseMessaging.getInstance().subscribeToTopic("")//name topic for example
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -67,6 +69,15 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                 });
 
+        ChooseImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_PICK);
+                intent.setType("image/*");
+
+            }
+        });
+
         Edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -74,35 +85,30 @@ public class ProfileActivity extends AppCompatActivity {
                 updateUser(currentUserId);
             }
         });
-        GetAllUsers();
+        GetUserById(userID);
 
     }
-        public  void GetAllUsers(){
-            db.collection("users").get()
-                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot documentSnapshots) {
-                            if (documentSnapshots.isEmpty()) {
-                                Log.d("n", "onSuccess: LIST EMPTY");
-                                return;
-                            } else {
-                                for (DocumentSnapshot documentSnapshot : documentSnapshots) {
-                                    if (documentSnapshot.exists()) {
-                                        Name.setText(documentSnapshot.getString("name").toString());
-                                        Email.setText(documentSnapshot.getString("email").toString());
-                                        Password.setText(documentSnapshot.getString("password").toString());
-
-                                    }
-                                }
-                            }
+    public void GetUserById(String userID) {
+        db.collection("users").document(userID)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            Name.setText(documentSnapshot.getString("name"));
+                            Email.setText(documentSnapshot.getString("email"));
+                            Password.setText(documentSnapshot.getString("password"));
+                        } else {
+                            Log.d("n", "No such document");
                         }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.e("LogDATA", "get failed  ");
-
-                        }
-                    });
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d("n", "get failed with ", e);
+                    }
+                });
         }
     public void updateUser(final String userId) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -110,12 +116,12 @@ public class ProfileActivity extends AppCompatActivity {
         final View customLayout = getLayoutInflater().inflate(R.layout.dialog, null);
         builder.setView(customLayout);
 
-        // Get references to the EditText fields in the dialog
+
         final EditText updateName = customLayout.findViewById(R.id.update_username);
         final EditText updateEmail = customLayout.findViewById(R.id.update_email);
         final EditText updatePassword = customLayout.findViewById(R.id.update_password);
 
-        // Retrieve the user's current data from the database
+
         db.collection("users").document(userId)
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -136,10 +142,9 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                 });
 
-        // Set up the dialog's "Update" button
+
         builder.setPositiveButton("Update", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                // Update the user's data in the database
                 db.collection("users").document(userId)
                         .update("name", updateName.getText().toString(),
                                 "email", updateEmail.getText().toString(),
@@ -147,6 +152,7 @@ public class ProfileActivity extends AppCompatActivity {
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
+                                Toast.makeText(ProfileActivity.this,"successfully updated",Toast.LENGTH_SHORT).show();
                                 Log.d("n", "DocumentSnapshot successfully updated!");
                             }
                         })
@@ -159,7 +165,6 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
-        // Show the dialog
         AlertDialog dialog = builder.create();
         dialog.show();
     }
